@@ -39,13 +39,15 @@ const getMonthNumber = (monthName) => {
   return months[monthName];
 };
 
-const parseFileName = (fileName, receiptsByFolders) => {
+const parseFileName = (fileName, receiptsByFolders, servicesNames) => {
   const result = extractServiceAndMonth(fileName);
 
   if (!result) {
     console.log("Строка не соответствует ожидаемому формату");
     return;
   }
+
+  servicesNames.add(result.service);
 
   if (receiptsByFolders[getMonthNumber(result.month)].receipts) {
     receiptsByFolders[getMonthNumber(result.month)].receipts.push(fileName);
@@ -61,27 +63,15 @@ const parseFileName = (fileName, receiptsByFolders) => {
   }
 };
 
-const writeFile = (filePath, receiptsByFolders) => {
+const writeFile = (filePath, receiptsByFolders, allServicesNames) => {
   const writeStream = fs.createWriteStream(filePath);
-
-  const allServices = [
-    "газоснабжение",
-    "ГВС",
-    "домофон",
-    "капремонт",
-    "квартплата",
-    "ТБО",
-    "теплоснабжение",
-    "ХВС",
-    "электроснабжение",
-  ];
   let unpaidResult = "не оплачены:\n";
 
   receiptsByFolders.forEach((folder) => {
     folder.receipts?.forEach((receipt) => {
       writeStream.write(`/${folder.month}/${receipt}` + "\n");
     });
-    const unpaidServices = allServices.filter(
+    const unpaidServices = [...allServicesNames].filter(
       (service) => !folder.services?.includes(service.toLowerCase())
     );
     if (unpaidServices.length !== 0)
@@ -105,6 +95,7 @@ const writeFile = (filePath, receiptsByFolders) => {
 
 const readFile = (inputFilePath, outputFilePath) => {
   const receiptsByFolders = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}];
+  const allServicesNames = new Set();
 
   if (!fs.existsSync(inputFilePath)) {
     console.error("Файл не найден:", inputFilePath);
@@ -124,7 +115,7 @@ const readFile = (inputFilePath, outputFilePath) => {
   });
 
   rl.on("line", (line) => {
-    parseFileName(line, receiptsByFolders);
+    parseFileName(line.trim(), receiptsByFolders, allServicesNames);
   });
 
   rl.on("error", (error) => {
@@ -133,7 +124,7 @@ const readFile = (inputFilePath, outputFilePath) => {
   });
 
   rl.on("close", () => {
-    writeFile(outputFilePath, receiptsByFolders);
+    writeFile(outputFilePath, receiptsByFolders, allServicesNames);
   });
 };
 
