@@ -50,11 +50,13 @@ const parseFileName = (fileName, receiptsByFolders) => {
   if (receiptsByFolders[getMonthNumber(result.month)].receipts) {
     receiptsByFolders[getMonthNumber(result.month)].receipts.push(fileName);
     receiptsByFolders[getMonthNumber(result.month)].services.push(
-      result.service
+      result.service.toLowerCase()
     );
   } else {
     receiptsByFolders[getMonthNumber(result.month)].receipts = [fileName];
-    receiptsByFolders[getMonthNumber(result.month)].services = [result.service];
+    receiptsByFolders[getMonthNumber(result.month)].services = [
+      result.service.toLowerCase(),
+    ];
     receiptsByFolders[getMonthNumber(result.month)].month = result.month;
   }
 };
@@ -80,7 +82,7 @@ const writeFile = (filePath, receiptsByFolders) => {
       writeStream.write(`/${folder.month}/${receipt}` + "\n");
     });
     const unpaidServices = allServices.filter(
-      (service) => !folder.services?.includes(service)
+      (service) => !folder.services?.includes(service.toLowerCase())
     );
     if (unpaidServices.length !== 0)
       unpaidResult += `${folder.month}:\n${unpaidServices
