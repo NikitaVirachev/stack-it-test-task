@@ -63,24 +63,32 @@ const parseFileName = (fileName, receiptsByFolders, servicesNames) => {
   }
 };
 
-const writeFile = (filePath, receiptsByFolders, allServicesNames) => {
-  const writeStream = fs.createWriteStream(filePath);
-  let unpaidResult = "не оплачены:\n";
+const createSummaryText = (receiptsByFolders, allServicesNames) => {
+  let resultByFolders = "";
+  let unpaidResult = "";
 
   receiptsByFolders.forEach((folder) => {
     folder.receipts?.forEach((receipt) => {
-      writeStream.write(`/${folder.month}/${receipt}` + "\n");
+      resultByFolders += `/${folder.month}/${receipt}\n`;
     });
     const unpaidServices = [...allServicesNames].filter(
       (service) => !folder.services?.includes(service.toLowerCase())
     );
-    if (unpaidServices.length !== 0)
+    if (unpaidServices.length !== 0) {
+      if (!unpaidResult) unpaidResult = "не оплачены:\n";
       unpaidResult += `${folder.month}:\n${unpaidServices
         .map((service) => `${service}\n`)
         .join("")}`;
+    }
   });
 
-  writeStream.write(unpaidResult);
+  return resultByFolders + unpaidResult;
+};
+
+const writeFile = (filePath, text) => {
+  const writeStream = fs.createWriteStream(filePath);
+
+  writeStream.write(text);
 
   writeStream.on("error", (error) => {
     console.error("Произошла ошибка при записи файла:", error);
@@ -124,7 +132,8 @@ const readFile = (inputFilePath, outputFilePath) => {
   });
 
   rl.on("close", () => {
-    writeFile(outputFilePath, receiptsByFolders, allServicesNames);
+    const text = createSummaryText(receiptsByFolders, allServicesNames);
+    writeFile(outputFilePath, text);
   });
 };
 
