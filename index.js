@@ -1,10 +1,16 @@
 const fs = require("fs");
 const readline = require("readline");
 
-const dirPath = process.argv[2];
-const inputFilePath = `${dirPath}/чеки.txt`;
-const outputFilePath = `${dirPath}/чеки_по_папкам.txt`;
+// Пути к входному и выходному файлам
+const dirPath = process.argv[2]; // Путь к директории с файлами
+const inputFilePath = `${dirPath}/чеки.txt`; // Путь к входному файлу
+const outputFilePath = `${dirPath}/чеки_по_папкам.txt`; // Путь к выходному файлу
 
+/**
+ * Извлекает название услуги и месяца из имени файла.
+ * @param {string} filename - Имя файла для обработки.
+ * @returns {object|null} Объект с названием услуги и месяца или null, если формат неверный.
+ */
 const extractServiceAndMonth = (filename) => {
   const serviceWithMonth = filename.split(".pdf")[0];
   const parts = serviceWithMonth.split("_");
@@ -19,6 +25,11 @@ const extractServiceAndMonth = (filename) => {
   }
 };
 
+/**
+ * Преобразует название месяца в числовой индекс.
+ * @param {string} monthName - Название месяца.
+ * @returns {number} Числовой индекс месяца.
+ */
 const getMonthNumber = (monthName) => {
   const months = {
     январь: 0,
@@ -39,6 +50,12 @@ const getMonthNumber = (monthName) => {
   return months[monthName];
 };
 
+/**
+ * Обрабатывает каждое имя файла, разделяя его на услугу и месяц и добавляя в структуру данных.
+ * @param {string} fileName - Имя файла для обработки.
+ * @param {array} receiptsByFolders - Массив для хранения информации о чеках по папкам.
+ * @param {Set} servicesNames - Множество для хранения всех видов услуг.
+ */
 const parseFileName = (fileName, receiptsByFolders, servicesNames) => {
   const result = extractServiceAndMonth(fileName);
 
@@ -64,6 +81,12 @@ const parseFileName = (fileName, receiptsByFolders, servicesNames) => {
   }
 };
 
+/**
+ * Создаёт итоговый текст для записи в файл.
+ * @param {array} receiptsByFolders - Массив с информацией о чеках по папкам.
+ * @param {Set} allServicesNames - Множество всех видов услуг.
+ * @returns {string} Итоговый текст для записи.
+ */
 const createSummaryText = (receiptsByFolders, allServicesNames) => {
   let resultByFolders = "";
   let unpaidResult = "";
@@ -87,6 +110,11 @@ const createSummaryText = (receiptsByFolders, allServicesNames) => {
   return resultByFolders + unpaidResult;
 };
 
+/**
+ * Записывает текст в файл.
+ * @param {string} filePath - Путь к файлу для записи.
+ * @param {string} text - Текст для записи.
+ */
 const writeFile = (filePath, text) => {
   const writeStream = fs.createWriteStream(filePath);
 
@@ -103,6 +131,11 @@ const writeFile = (filePath, text) => {
   });
 };
 
+/**
+ * Читает входной файл и обрабатывает каждую строку.
+ * @param {string} inputFilePath - Путь к входному файлу.
+ * @param {string} outputFilePath - Путь к выходному файлу.
+ */
 const readFile = (inputFilePath, outputFilePath) => {
   const receiptsByFolders = [];
   const allServicesNames = new Set();
@@ -139,6 +172,7 @@ const readFile = (inputFilePath, outputFilePath) => {
   });
 };
 
+// Проверка на пустоту входного файла перед чтением
 const fileStats = fs.statSync(inputFilePath);
 if (fileStats.size === 0) {
   console.error("Файл пустой:", inputFilePath);
