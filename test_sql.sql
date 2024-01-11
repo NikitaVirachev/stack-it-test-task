@@ -465,7 +465,7 @@ BEGIN
 
 		SELECT a.row_id, a.parent_id, a.number, a.type
 		FROM stack.Accounts AS a
-		JOIN Account_Tree AS a_t ON a.parent_id = a_t.row_id AND a_t.type IN (1, 2)
+		JOIN Account_Tree AS a_t ON a.parent_id = a_t.row_id
 		WHERE a.type IN (2, 3)
 	) 
     SELECT Account_Tree.number, Counters.name, SUM(Meter_pok.value)
