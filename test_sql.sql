@@ -463,10 +463,10 @@ BEGIN
 
 		UNION ALL
 
-		SELECT a.row_id, a.parent_id, a.number, a.type
-		FROM stack.Accounts AS a
-		JOIN Account_Tree AS a_t ON a.parent_id = a_t.row_id
-		WHERE a.type IN (2, 3)
+		SELECT A.row_id, A.parent_id, A.number, A.type
+		FROM stack.Accounts A
+		JOIN Account_Tree A_T ON A.parent_id = A_T.row_id
+		WHERE A.type IN (2, 3)
 	) 
    SELECT Account_Tree.number, Counters.name, SUM(Meter_pok.value)
 	FROM stack.Meter_Pok 
