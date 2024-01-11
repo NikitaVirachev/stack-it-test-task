@@ -477,7 +477,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-select * from stack.select_value_by_house_and_month(1,'20230101');
+select * from stack.select_value_by_house_and_month(1,'20230201');
 
 ---------------------------------------------------------------------------------------------------
 
