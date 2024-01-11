@@ -468,7 +468,7 @@ BEGIN
 		JOIN Account_Tree AS a_t ON a.parent_id = a_t.row_id
 		WHERE a.type IN (2, 3)
 	) 
-    SELECT Account_Tree.number, Counters.name, SUM(Meter_pok.value)
+   SELECT Account_Tree.number, Counters.name, SUM(Meter_pok.value)
 	FROM stack.Meter_Pok 
 	JOIN stack.Counters ON Meter_Pok.counter_id = Counters.row_id
 	JOIN Account_Tree ON Meter_Pok.acc_id = Account_Tree.row_id
@@ -477,7 +477,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-select * from stack.select_value_by_house_and_month(1,'20230201');
+SELECT * FROM stack.select_value_by_house_and_month(1,'20230201');
 
 ---------------------------------------------------------------------------------------------------
 
