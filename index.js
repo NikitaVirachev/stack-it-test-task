@@ -49,12 +49,13 @@ const parseFileName = (fileName, receiptsByFolders, servicesNames) => {
 
   servicesNames.add(result.service);
 
-  if (receiptsByFolders[getMonthNumber(result.month)].receipts) {
+  if (receiptsByFolders[getMonthNumber(result.month)]?.receipts) {
     receiptsByFolders[getMonthNumber(result.month)].receipts.push(fileName);
     receiptsByFolders[getMonthNumber(result.month)].services.push(
       result.service.toLowerCase()
     );
   } else {
+    receiptsByFolders[getMonthNumber(result.month)] = {};
     receiptsByFolders[getMonthNumber(result.month)].receipts = [fileName];
     receiptsByFolders[getMonthNumber(result.month)].services = [
       result.service.toLowerCase(),
@@ -68,6 +69,7 @@ const createSummaryText = (receiptsByFolders, allServicesNames) => {
   let unpaidResult = "";
 
   receiptsByFolders.forEach((folder) => {
+    if (folder === undefined) return;
     folder.receipts?.forEach((receipt) => {
       resultByFolders += `/${folder.month}/${receipt}\n`;
     });
@@ -102,7 +104,7 @@ const writeFile = (filePath, text) => {
 };
 
 const readFile = (inputFilePath, outputFilePath) => {
-  const receiptsByFolders = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}];
+  const receiptsByFolders = [];
   const allServicesNames = new Set();
 
   if (!fs.existsSync(inputFilePath)) {
