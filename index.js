@@ -43,7 +43,7 @@ const parseFileName = (fileName, receiptsByFolders, servicesNames) => {
   const result = extractServiceAndMonth(fileName);
 
   if (!result) {
-    console.log("Строка не соответствует ожидаемому формату");
+    console.log(`Строка не соответствует ожидаемому формату: ${fileName}`);
     return;
   }
 
