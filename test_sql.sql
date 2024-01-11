@@ -444,13 +444,40 @@ SELECT * FROM stack.select_count_pok_by_service('300','20230201');
 
 Написать функцию select_value_by_house_and_month. 
 Она получает номер дома и месяц и возвращает все лицевые в этом доме. 
-Для лицевых выводятся все счетчики с сумарным расходом за месяц (суммируются все показания тарифов).
+Для лицевых выводятся все счетчики с сумарным расходом за месяц (суммируя все показания тарифов).
 Результатом вызова функции должна быть таблица с 3 колонками:
 
 - acc (Лицевой счет)
 - name (Наименование счетчика)
 - value (Расход)
 */
+
+CREATE OR REPLACE FUNCTION stack.select_value_by_house_and_month(house_number int, date_param date)
+RETURNS TABLE (acc int, name text, value bigint) AS $$
+BEGIN
+	RETURN QUERY
+	WITH RECURSIVE Account_Tree AS (
+		SELECT row_id, parent_id, number, type
+		FROM stack.Accounts
+		WHERE number = house_number AND type = 1
+
+		UNION ALL
+
+		SELECT a.row_id, a.parent_id, a.number, a.type
+		FROM stack.Accounts AS a
+		JOIN Account_Tree AS a_t ON a.parent_id = a_t.row_id AND a_t.type IN (1, 2)
+		WHERE a.type IN (2, 3)
+	) 
+    SELECT Account_Tree.number, Counters.name, SUM(Meter_pok.value)
+	FROM stack.Meter_Pok 
+	JOIN stack.Counters ON Meter_Pok.counter_id = Counters.row_id
+	JOIN Account_Tree ON Meter_Pok.acc_id = Account_Tree.row_id
+	WHERE Meter_Pok.month = date_param AND Account_Tree.type = 3
+	GROUP BY Account_Tree.number, Counters.name;
+END;
+$$ LANGUAGE plpgsql;
+
+select * from stack.select_value_by_house_and_month(1,'20230101');
 
 ---------------------------------------------------------------------------------------------------
 
