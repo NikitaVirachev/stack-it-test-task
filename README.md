@@ -27,3 +27,7 @@
    ```bash
    node index.js ./data
    ```
+
+# SQL
+
+Решение заданий находиться в файле `test_sql.sql`.
