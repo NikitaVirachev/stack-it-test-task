@@ -139,4 +139,9 @@ const readFile = (inputFilePath, outputFilePath) => {
   });
 };
 
-readFile(inputFilePath, outputFilePath);
+const fileStats = fs.statSync(inputFilePath);
+if (fileStats.size === 0) {
+  console.error("Файл пустой:", inputFilePath);
+} else {
+  readFile(inputFilePath, outputFilePath);
+}
