@@ -494,3 +494,22 @@ select * from stack.select_value_by_house_and_month(1,'20230201');
 - tarif (Тариф показания)
 - value (Объем)
 */
+
+CREATE OR REPLACE FUNCTION stack.select_last_pok_by_acc(acc_number int)
+RETURNS TABLE (acc int, serv int, date date, tarif int, value int) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT A.number, C.service, MP.date, MP.tarif, MP.value
+    FROM stack.Accounts A
+    JOIN stack.Meter_Pok MP ON A.row_id = MP.acc_id
+    JOIN stack.Counters C ON MP.counter_id = C.row_id
+    WHERE A.number = acc_number AND
+		(MP.acc_id, MP.counter_id, MP.date, MP.tarif) IN (
+			SELECT MP2.acc_id, MP2.counter_id, MAX(MP2.date), MP2.tarif
+			FROM stack.Meter_Pok MP2
+			GROUP BY MP2.acc_id, MP2.counter_id, MP2.tarif
+		);
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT * FROM stack.select_last_pok_by_acc(144);
